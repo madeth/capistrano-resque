@@ -9,6 +9,9 @@ module CapistranoResque
         _cset(:workers, {"*" => 1})
         _cset(:resque_kill_signal, "QUIT")
         _cset(:interval, "5")
+        _cset(:resque_term_timeout, 4)
+        _cset(:term_child, nil)
+        _cset(:newrelic_enable, nil)
 
         def workers_roles
           return workers.keys if workers.first[1].is_a? Hash
@@ -34,7 +37,7 @@ module CapistranoResque
 
         def start_command(queue, pid)
           "cd #{current_path} && RAILS_ENV=#{rails_env} QUEUE=\"#{queue}\" \
-           PIDFILE=#{pid} BACKGROUND=yes VERBOSE=1 INTERVAL=#{interval} \
+           PIDFILE=#{pid} BACKGROUND=yes VERBOSE=1 INTERVAL=#{interval} RESQUE_TERM_TIMEOUT=#{resque_term_timeout} #{term_child_env} #{newrelic_enable_env} \
            #{fetch(:bundle_cmd, "bundle")} exec rake resque:work"
         end
 
@@ -56,6 +59,14 @@ module CapistranoResque
           "if [ -e #{pid} ]; then \
             #{try_sudo} kill $(cat #{pid}) ; rm #{pid} \
            ;fi"
+        end
+
+        def term_child_env
+          fetch(:term_child, nil) ? 'TERM_CHILD=1' : nil
+        end
+
+        def newrelic_enable_env
+          fetch(:newrelic_enable, nil) ? 'NEWRELIC_ENABLE=false' : nil
         end
 
         namespace :resque do
