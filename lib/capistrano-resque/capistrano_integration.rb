@@ -10,8 +10,8 @@ module CapistranoResque
         _cset(:resque_kill_signal, "QUIT")
         _cset(:interval, "5")
         _cset(:resque_term_timeout, 4)
-        _cset(:term_child, nil)
-        _cset(:newrelic_enable, nil)
+        _cset(:term_child_enable, nil)
+        _cset(:newrelic_disable, nil)
 
         def workers_roles
           return workers.keys if workers.first[1].is_a? Hash
@@ -62,11 +62,11 @@ module CapistranoResque
         end
 
         def term_child_env
-          fetch(:term_child, nil) ? 'TERM_CHILD=1' : nil
+          fetch(:term_child_enable, nil) ? 'TERM_CHILD=1' : nil
         end
 
         def newrelic_enable_env
-          fetch(:newrelic_enable, nil) ? 'NEWRELIC_ENABLE=false' : nil
+          fetch(:newrelic_disable, nil) ? 'NEWRELIC_ENABLE=false' : nil
         end
 
         namespace :resque do
